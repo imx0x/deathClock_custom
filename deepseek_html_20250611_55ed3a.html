@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rohit & Nanu - Together Across Miles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --rohit-color: #3498db;
+            --nanu-color: #e84393;
+            --light-gray: #f5f6fa;
+            --dark-gray: #2f3640;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--light-gray); color: var(--dark-gray); min-height: 100vh; }
+        header { background: linear-gradient(135deg, var(--rohit-color), var(--nanu-color)); color: white; text-align: center; padding: 1.5rem 1rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .header-content { max-width: 1200px; margin: 0 auto; position: relative; }
+        .user-selector { position: absolute; top: 10px; right: 20px; background-color: rgba(255, 255, 255, 0.2); padding: 5px 10px; border-radius: 5px; font-size: 0.9rem; }
+        .user-selector select { background: transparent; border: none; color: white; font-weight: bold; font-size: 0.9rem; }
+        .user-selector select option { color: black; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .photo-column { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); text-align: center; }
+        .photo-column h2 { margin-bottom: 15px; color: white; padding: 8px; border-radius: 5px; }
+        .rohit-header { background-color: var(--rohit-color); }
+        .nanu-header { background-color: var(--nanu-color); }
+        .photo-container { position: relative; height: 300px; background-color: #f8f9fa; border-radius: 8px; overflow: hidden; margin-bottom: 15px; }
+        .photo-container img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+        .upload-btn { background-color: var(--dark-gray); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px; transition: all 0.3s; }
+        .upload-btn:hover { opacity: 0.9; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); overflow: auto; }
+        .modal-content { margin: auto; display: block; max-width: 90%; max-height: 90%; margin-top: 5%; }
+        .close { position: absolute; top: 20px; right: 30px; color: white; font-size: 35px; font-weight: bold; cursor: pointer; }
+        .calendar-section { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-nav button { background-color: var(--dark-gray); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .calendar-day-header { text-align: center; font-weight: bold; padding: 5px; background-color: #f8f9fa; border-radius: 5px; }
+        .calendar-day { min-height: 80px; border: 1px solid #eee; padding: 5px; border-radius: 5px; position: relative; }
+        .calendar-day.empty { background-color: #f8f9fa; }
+        .day-number { font-weight: bold; margin-bottom: 3px; }
+        .rohit-note, .nanu-note { padding: 3px; font-size: 0.8rem; margin-bottom: 2px; border-radius: 2px; }
+        .rohit-note { background-color: rgba(52, 152, 219, 0.2); border-left: 3px solid var(--rohit-color); }
+        .nanu-note { background-color: rgba(232, 67, 147, 0.2); border-left: 3px solid var(--nanu-color); }
+        .add-note-btn { position: absolute; bottom: 5px; right: 5px; background: none; border: none; color: #aaa; cursor: pointer; font-size: 0.8rem; }
+        .note-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); }
+        .note-modal-content { background-color: white; margin: 10% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 500px; }
+        .note-modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .note-textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: none; margin-bottom: 15px; }
+        .note-modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+        .save-note-btn { background-color: var(--rohit-color); color: white; border: none; padding: 8px 15px; border-radius: 5px; }
+        .chat-section { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin-bottom: 30px; overflow: hidden; }
+        .chat-header { background: linear-gradient(135deg, var(--rohit-color), var(--nanu-color)); color: white; padding: 15px; text-align: center; }
+        .chat-messages { height: 300px; overflow-y: auto; padding: 15px; background-color: #f8f9fa; }
+        .message { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .message.rohit { align-items: flex-start; }
+        .message.nanu { align-items: flex-end; }
+        .message-user { font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; }
+        .message.rohit .message-user { color: var(--rohit-color); }
+        .message.nanu .message-user { color: var(--nanu-color); }
+        .message-content { padding: 10px 15px; border-radius: 18px; max-width: 70%; }
+        .message.rohit .message-content { background-color: rgba(52, 152, 219, 0.1); border-bottom-left-radius: 5px; }
+        .message.nanu .message-content { background-color: rgba(232, 67, 147, 0.1); border-bottom-right-radius: 5px; }
+        .message-time { font-size: 0.7rem; color: #777; margin-top: 3px; }
+        .chat-input-area { display: flex; padding: 15px; border-top: 1px solid #eee; }
+        .chat-input { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        .send-btn { background-color: var(--rohit-color); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .goals-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .goal-column { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .goal-list { list-style: none; }
+        .goal-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .goal-checkbox { margin-right: 10px; }
+        .goal-text { flex: 1; }
+        .goal-text.completed { text-decoration: line-through; color: #777; }
+        .delete-goal-btn { background: none; border: none; color: #aaa; cursor: pointer; font-size: 1rem; margin-left: 10px; }
+        .add-goal-form { display: flex; margin-top: 15px; }
+        .goal-input { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 5px; margin-right: 10px; }
+        .add-goal-btn { background-color: var(--dark-gray); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        @media (max-width: 768px) {
+            .photo-grid, .goals-section { grid-template-columns: 1fr; }
+            .user-selector { top: auto; bottom: 10px; right: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Rohit & Nanu</h1>
+            <p>Together Across Miles</p>
+            <div class="user-selector">
+                <label for="user-switcher">Viewing as: </label>
+                <select id="user-switcher">
+                    <option value="rohit">Rohit</option>
+                    <option value="nanu">Nanu</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="photo-grid">
+            <div class="photo-column">
+                <h2 class="rohit-header">ROHIT</h2>
+                <div class="photo-container">
+                    <img id="rohit-photo" src="https://via.placeholder.com/300x300?text=Upload+Photo" alt="Rohit's Photo">
+                </div>
+                <input type="file" id="rohit-upload" accept="image/*" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('rohit-upload').click()"><i class="fas fa-camera"></i> Upload Photo</button>
+            </div>
+            <div class="photo-column">
+                <h2 class="nanu-header">NANU</h2>
+                <div class="photo-container">
+                    <img id="nanu-photo" src="https://via.placeholder.com/300x300?text=Upload+Photo" alt="Nanu's Photo">
+                </div>
+                <input type="file" id="nanu-upload" accept="image/*" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('nanu-upload').click()"><i class="fas fa-camera"></i> Upload Photo</button>
+            </div>
+        </section>
+
+        <div id="photoModal" class="modal">
+            <span class="close" id="close-photo-modal">&times;</span>
+            <img class="modal-content" id="zoomedPhoto">
+        </div>
+
+        <section class="calendar-section">
+            <div class="calendar-header">
+                <h3 id="current-month-year">June 2023</h3>
+                <div class="calendar-nav">
+                    <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                    <button id="today">Today</button>
+                    <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </section>
+
+        <div id="noteModal" class="note-modal">
+            <div class="note-modal-content">
+                <div class="note-modal-header">
+                    <h3>Add Note for <span id="note-modal-user-name"></span></h3>
+                    <span class="close-note-modal" id="close-note-modal">&times;</span>
+                </div>
+                <textarea class="note-textarea" id="note-text" placeholder="Write your note here..."></textarea>
+                <div class="note-modal-buttons">
+                    <button id="cancel-note">Cancel</button>
+                    <button id="save-note" class="save-note-btn">Save Note</button>
+                </div>
+            </div>
+        </div>
+
+        <section class="chat-section">
+            <div class="chat-header"><h2>Our Chat</h2></div>
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="chat-input" placeholder="Type your message here...">
+                <button class="send-btn" id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </section>
+
+        <section class="goals-section">
+            <div class="goal-column rohit-goals">
+                <h2>ROHIT'S GOALS</h2>
+                <ul class="goal-list" id="rohit-goal-list"></ul>
+                <div class="add-goal-form">
+                    <input type="text" class="goal-input" id="rohit-goal-input" placeholder="Add a new goal">
+                    <button class="add-goal-btn" id="rohit-add-goal-btn">Add</button>
+                </div>
+            </div>
+            <div class="goal-column nanu-goals">
+                <h2>NANU'S GOALS</h2>
+                <ul class="goal-list" id="nanu-goal-list"></ul>
+                <div class="add-goal-form">
+                    <input type="text" class="goal-input" id="nanu-goal-input" placeholder="Add a new goal">
+                    <button class="add-goal-btn" id="nanu-add-goal-btn">Add</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const supabaseUrl = 'https://uhqifegfdiqstikjldhp.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVocWlmZWdmZGlxc3Rpa2psZGhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk2MDIxNjksImV4cCI6MjA2NTE3ODE2OX0.SqnWk4BvqySd6Xx8sXDAgyvQniGmSEvLE6ahsC6WvdU';
+        const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+        // --- GLOBAL VARIABLES ---
+        let currentDate = new Date();
+        let selectedDate = null;
+        let currentUser = 'rohit';
+
+        // --- DOM ELEMENTS ---
+        const DOMElements = {
+            userSwitcher: document.getElementById('user-switcher'),
+            rohitPhoto: document.getElementById('rohit-photo'),
+            nanuPhoto: document.getElementById('nanu-photo'),
+            rohitUploadInput: document.getElementById('rohit-upload'),
+            nanuUploadInput: document.getElementById('nanu-upload'),
+            photoModal: document.getElementById('photoModal'),
+            zoomedPhoto: document.getElementById('zoomedPhoto'),
+            closePhotoModalBtn: document.getElementById('close-photo-modal'),
+            currentMonthYear: document.getElementById('current-month-year'),
+            calendarGrid: document.getElementById('calendar-grid'),
+            prevMonthBtn: document.getElementById('prev-month'),
+            nextMonthBtn: document.getElementById('next-month'),
+            todayBtn: document.getElementById('today'),
+            noteModal: document.getElementById('noteModal'),
+            noteModalUserName: document.getElementById('note-modal-user-name'),
+            noteText: document.getElementById('note-text'),
+            saveNoteBtn: document.getElementById('save-note'),
+            cancelNoteBtn: document.getElementById('cancel-note'),
+            closeNoteModalBtn: document.getElementById('close-note-modal'),
+            chatMessages: document.getElementById('chat-messages'),
+            chatInput: document.getElementById('chat-input'),
+            sendBtn: document.getElementById('send-btn'),
+            rohitGoalList: document.getElementById('rohit-goal-list'),
+            nanuGoalList: document.getElementById('nanu-goal-list'),
+            rohitGoalInput: document.getElementById('rohit-goal-input'),
+            nanuGoalInput: document.getElementById('nanu-goal-input'),
+            rohitAddGoalBtn: document.getElementById('rohit-add-goal-btn'),
+            nanuAddGoalBtn: document.getElementById('nanu-add-goal-btn'),
+        };
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', init);
+
+        async function init() {
+            setupEventListeners();
+            await loadInitialData();
+            setupRealtimeSubscriptions();
+        }
+        
+        function setupEventListeners() {
+            DOMElements.userSwitcher.addEventListener('change', (e) => {
+                currentUser = e.target.value;
+            });
+            DOMElements.rohitUploadInput.addEventListener('change', (e) => handlePhotoUpload(e, 'rohit'));
+            DOMElements.nanuUploadInput.addEventListener('change', (e) => handlePhotoUpload(e, 'nanu'));
+            DOMElements.rohitPhoto.addEventListener('click', () => openPhotoModal(DOMElements.rohitPhoto.src));
+            DOMElements.nanuPhoto.addEventListener('click', () => openPhotoModal(DOMElements.nanuPhoto.src));
+            DOMElements.closePhotoModalBtn.addEventListener('click', closePhotoModal);
+            DOMElements.prevMonthBtn.addEventListener('click', showPreviousMonth);
+            DOMElements.nextMonthBtn.addEventListener('click', showNextMonth);
+            DOMElements.todayBtn.addEventListener('click', showCurrentMonth);
+            DOMElements.saveNoteBtn.addEventListener('click', saveNote);
+            DOMElements.cancelNoteBtn.addEventListener('click', closeNoteModal);
+            DOMElements.closeNoteModalBtn.addEventListener('click', closeNoteModal);
+            DOMElements.sendBtn.addEventListener('click', sendMessage);
+            DOMElements.chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+            DOMElements.rohitAddGoalBtn.addEventListener('click', () => addGoal('rohit'));
+            DOMElements.nanuAddGoalBtn.addEventListener('click', () => addGoal('nanu'));
+            DOMElements.rohitGoalInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addGoal('rohit'); });
+            DOMElements.nanuGoalInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addGoal('nanu'); });
+        }
+
+        async function loadInitialData() {
+            await loadDailyPhotos();
+            await generateCalendar();
+            await loadChatMessages();
+            await loadAllGoals();
+        }
+
+        // --- PHOTO FUNCTIONS ---
+        function handlePhotoUpload(event, user) {
+            const file = event.target.files[0];
+            if (file) uploadPhoto(file, user);
+        }
+
+        async function uploadPhoto(file, user) {
+            const date = new Date().toISOString().split('T')[0];
+            const filePath = `daily_photos/${user}/${date}.jpg`;
+            try {
+                const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, file, { cacheControl: '3600', upsert: true });
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+
+                // IMPORTANT: The `onConflict` option requires a UNIQUE constraint on ('user', 'date') in your Supabase table.
+                const { error: dbError } = await supabase.from('daily_photos').upsert({ user: user, date: date, photo_url: publicUrl }, { onConflict: 'user, date' });
+                if (dbError) throw dbError;
+
+            } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Photo upload failed. Check the console for details.");
+            }
+        }
+
+        async function loadDailyPhotos() {
+            const date = new Date().toISOString().split('T')[0];
+            try {
+                const { data, error } = await supabase.from('daily_photos').select('user, photo_url').eq('date', date);
+                if (error) throw error;
+                updatePhotosOnPage(data);
+            } catch (error) {
+                console.error("Error loading photos:", error);
+            }
+        }
+
+        function updatePhotosOnPage(photos) {
+            photos.forEach(photo => {
+                if (photo.user === 'rohit') DOMElements.rohitPhoto.src = photo.photo_url;
+                if (photo.user === 'nanu') DOMElements.nanuPhoto.src = photo.photo_url;
+            });
+        }
+        
+        function openPhotoModal(photoSrc) {
+            if (!photoSrc.includes('placeholder')) {
+                DOMElements.zoomedPhoto.src = photoSrc;
+                DOMElements.photoModal.style.display = "block";
+            }
+        }
+
+        function closePhotoModal() {
+            DOMElements.photoModal.style.display = "none";
+        }
+
+        // --- CALENDAR FUNCTIONS (REFACTORED FOR EFFICIENCY) ---
+        async function generateCalendar() {
+            DOMElements.calendarGrid.innerHTML = '';
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            DOMElements.currentMonthYear.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+            // Fetch all notes for the visible month in one go
+            const notesForMonth = await getNotesForMonth(firstDayOfMonth, lastDayOfMonth);
+
+            // Create day headers
+            ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                DOMElements.calendarGrid.appendChild(dayHeader);
+            });
+
+            // Fill in empty days at the start
+            for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
+                DOMElements.calendarGrid.appendChild(document.createElement('div')).className = 'calendar-day empty';
+            }
+
+            // Fill in the actual days
+            for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                dayCell.innerHTML = `<div class="day-number">${i}</div>`;
+
+                const dateKey = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                if (notesForMonth[dateKey]) {
+                    notesForMonth[dateKey].forEach(note => {
+                        const noteElement = document.createElement('div');
+                        noteElement.className = note.user === 'rohit' ? 'rohit-note' : 'nanu-note';
+                        noteElement.textContent = note.text;
+                        dayCell.appendChild(noteElement);
+                    });
+                }
+                
+                const addNoteBtn = document.createElement('button');
+                addNoteBtn.className = 'add-note-btn';
+                addNoteBtn.innerHTML = '<i class="fas fa-plus"></i>';
+                addNoteBtn.onclick = () => openNoteModal(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
+                dayCell.appendChild(addNoteBtn);
+
+                DOMElements.calendarGrid.appendChild(dayCell);
+            }
+        }
+
+        async function getNotesForMonth(firstDay, lastDay) {
+            const startDate = firstDay.toISOString().split('T')[0];
+            const endDate = lastDay.toISOString().split('T')[0];
+            try {
+                const { data, error } = await supabase.from('calendar_notes').select('*').gte('date', startDate).lte('date', endDate);
+                if (error) throw error;
+                // Group notes by date for easy lookup
+                return data.reduce((acc, note) => {
+                    (acc[note.date] = acc[note.date] || []).push(note);
+                    return acc;
+                }, {});
+            } catch (error) {
+                console.error("Error fetching notes:", error);
+                return {};
+            }
+        }
+
+        function showPreviousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar();
+        }
+
+        function showNextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar();
+        }
+
+        function showCurrentMonth() {
+            currentDate = new Date();
+            generateCalendar();
+        }
+        
+        // --- NOTE MODAL FUNCTIONS ---
+        function openNoteModal(date) {
+            selectedDate = date;
+            DOMElements.noteModalUserName.textContent = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
+            DOMElements.noteModal.style.display = 'block';
+        }
+
+        function closeNoteModal() {
+            DOMElements.noteModal.style.display = 'none';
+            DOMElements.noteText.value = '';
+            selectedDate = null;
+        }
+
+        async function saveNote() {
+            const noteTextValue = DOMElements.noteText.value.trim();
+            if (noteTextValue && selectedDate) {
+                const dateKey = `${selectedDate.getFullYear()}-${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}-${selectedDate.getDate().toString().padStart(2, '0')}`;
+                try {
+                    const { error } = await supabase.from('calendar_notes').insert({ user: currentUser, text: noteTextValue, date: dateKey });
+                    if (error) throw error;
+                    closeNoteModal();
+                    generateCalendar(); // Refresh calendar
+                } catch (error) {
+                    console.error("Error saving note:", error);
+                    alert("Failed to save note.");
+                }
+            }
+        }
+
+        // --- CHAT FUNCTIONS ---
+        async function sendMessage() {
+            const messageText = DOMElements.chatInput.value.trim();
+            if (messageText) {
+                try {
+                    await supabase.from('chat_messages').insert({ user: currentUser, text: messageText });
+                    DOMElements.chatInput.value = '';
+                } catch (error) {
+                    console.error("Error sending message:", error);
+                }
+            }
+        }
+
+        async function loadChatMessages() {
+            try {
+                const { data, error } = await supabase.from('chat_messages').select('*').order('created_at', { ascending: true }).limit(100);
+                if (error) throw error;
+                DOMElements.chatMessages.innerHTML = '';
+                data.forEach(displayMessage);
+                scrollToBottom(DOMElements.chatMessages);
+            } catch (error) {
+                console.error("Error loading messages:", error);
+            }
+        }
+
+        function displayMessage(message) {
+            const el = document.createElement('div');
+            el.className = `message ${message.user}`;
+            const time = new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            el.innerHTML = `
+                <div class="message-user">${message.user === 'rohit' ? 'Rohit 👨' : 'Nanu 👩'}</div>
+                <div class="message-content">${message.text}</div>
+                <div class="message-time">${time}</div>`;
+            DOMElements.chatMessages.appendChild(el);
+            scrollToBottom(DOMElements.chatMessages);
+        }
+
+        // --- GOAL FUNCTIONS ---
+        async function addGoal(user) {
+            const goalInput = user === 'rohit' ? DOMElements.rohitGoalInput : DOMElements.nanuGoalInput;
+            const goalText = goalInput.value.trim();
+            if (goalText) {
+                try {
+                    await supabase.from('goals').insert({ user: user, text: goalText, completed: false });
+                    goalInput.value = '';
+                } catch (error) {
+                    console.error("Error adding goal:", error);
+                }
+            }
+        }
+
+        async function loadAllGoals() {
+            try {
+                const { data, error } = await supabase.from('goals').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                renderGoals(data);
+            } catch (error) {
+                console.error("Error loading goals:", error);
+            }
+        }
+        
+        function renderGoals(goals) {
+            DOMElements.rohitGoalList.innerHTML = '';
+            DOMElements.nanuGoalList.innerHTML = '';
+            
+            const rohitGoals = goals.filter(g => g.user === 'rohit');
+            const nanuGoals = goals.filter(g => g.user === 'nanu');
+
+            if (rohitGoals.length > 0) rohitGoals.forEach(goal => renderSingleGoal(goal, DOMElements.rohitGoalList));
+            else DOMElements.rohitGoalList.innerHTML = '<li>No goals yet. Add one!</li>';
+
+            if (nanuGoals.length > 0) nanuGoals.forEach(goal => renderSingleGoal(goal, DOMElements.nanuGoalList));
+            else DOMElements.nanuGoalList.innerHTML = '<li>No goals yet. Add one!</li>';
+        }
+        
+        function renderSingleGoal(goal, listElement) {
+            const item = document.createElement('li');
+            item.className = 'goal-item';
+            item.id = `goal-${goal.id}`;
+            item.innerHTML = `
+                <input type="checkbox" class="goal-checkbox" ${goal.completed ? 'checked' : ''}>
+                <span class="goal-text ${goal.completed ? 'completed' : ''}">${goal.text}</span>
+                <button class="delete-goal-btn"><i class="fas fa-trash"></i></button>`;
+            
+            item.querySelector('.goal-checkbox').addEventListener('change', (e) => toggleGoalCompletion(goal.id, e.target.checked));
+            item.querySelector('.delete-goal-btn').addEventListener('click', () => deleteGoal(goal.id));
+            
+            listElement.appendChild(item);
+        }
+
+        async function toggleGoalCompletion(goalId, isCompleted) {
+            try {
+                await supabase.from('goals').update({ completed: isCompleted }).eq('id', goalId);
+            } catch (error) {
+                console.error("Error updating goal:", error);
+            }
+        }
+
+        async function deleteGoal(goalId) {
+            if (confirm("Are you sure you want to delete this goal?")) {
+                try {
+                    await supabase.from('goals').delete().eq('id', goalId);
+                } catch (error) {
+                    console.error("Error deleting goal:", error);
+                }
+            }
+        }
+
+        // --- REALTIME SUBSCRIPTIONS ---
+        function setupRealtimeSubscriptions() {
+            // Chat messages
+            supabase.channel('public:chat_messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, payload => {
+                    displayMessage(payload.new);
+                }).subscribe();
+
+            // Photo uploads
+            supabase.channel('public:daily_photos')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_photos' }, payload => {
+                    if(payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                        const photo = payload.new;
+                        if (photo.user === 'rohit') DOMElements.rohitPhoto.src = photo.photo_url;
+                        if (photo.user === 'nanu') DOMElements.nanuPhoto.src = photo.photo_url;
+                    }
+                }).subscribe();
+
+            // Goals
+            supabase.channel('public:goals')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'goals' }, payload => {
+                    // Easiest way to handle all changes (insert, update, delete) is to just reload the goals
+                    loadAllGoals();
+                }).subscribe();
+        }
+
+        // --- HELPER FUNCTIONS ---
+        function scrollToBottom(element) {
+            element.scrollTop = element.scrollHeight;
+        }
+
+    </script>
+</body>
+</html>
